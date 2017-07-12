@@ -1,14 +1,15 @@
 import h5py 
 import json
 import numpy as np
-import fileFuncs as ff
+import fileFuncs.ff as ff
 from PIL import Image
 import argparse
+import os
 
 loaders = {".npy" : np.load, 
 		".png" : Image.open, 
 		".jpeg" : Image.open, 
-		".json" : json.open, }
+		".json" : lambda x: bytearray(x.read(), "ascii") , }
 	
 
 
@@ -18,12 +19,12 @@ class Folder:
 
 		group = f.create_group(ff.fileBase(source))
 
-		for file in ff.find(source, "."):
+		for file in ff.find(source, "*.*"):
 			try:
 				f_obj = File(file, ff.fileExt(file))
 				f_obj(group)
 
-			except ValueError e:
+			except ValueError as e:
 				print("File {} could not be added because of:\n {}".format(
 					file, e))
 
@@ -39,12 +40,12 @@ class File:
 
 		self.loaders = loaders
 		self.source = source
-		self.loaded = load_data(ext)
+		self.loaded = self.load_data(ext)
 
 	def __call__(self, group):
 
 		source_id = ff.fileName(self.source)
-		group.create_dataset(source_id, self.loaded)
+		group.create_dataset(source_id, data=self.loaded)
 
 
 
@@ -54,7 +55,39 @@ class File:
 				ext, self.loaders.keys()))
 
 		loader = self.loaders[ext]
-		with loader(file) as d:
+		with open(self.source) as f:
+			d = loader(f)
 			loaded = np.asarray(d)
 
 		return loaded
+
+def main():
+	parser = argparse.ArgumentParser(description = "Converts directorty tree to hdf5")
+
+	parser.add_argument("root", type =str, 
+		help = "Root path")
+
+	parser.add_argument("--out", "-o", type = str, default = os.getcwd(),
+		help = "Path to save dataset. Default is CWD")
+
+
+	args = parser.parse_args()
+
+	print("Supported files are {}".format(loaders.keys()))
+
+	if not ff.isDir(args.root):
+		raise ValueError("{} is not a valid path".format(args.root))
+
+	ff.ensureDir(args.out)
+	root_base = ff.fileBase(args.root)
+	out = ff.join(args.out, "{}.hdf5".format(root_base))
+
+	print("Save destination: {}".format(out))
+	print("Beginning HDF5 conversion")
+	with h5py.File(out, "w") as f:
+		Folder(args.root, f)
+
+	print("HDF5 conversion complete")
+
+if __name__ == '__main__':
+	main()

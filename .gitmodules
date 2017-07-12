@@ -1,0 +1,3 @@
+[submodule "fileFuncs"]
+	path = fileFuncs
+	url = https://github.com/belledon/fileFuncs.git
