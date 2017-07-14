@@ -9,7 +9,7 @@ import os
 loaders = {".npy" : np.load, 
 		".png" : Image.open, 
 		".jpeg" : Image.open, 
-		".json" : lambda x: bytearray(x.read(), "ascii") , }
+		".json" : lambda x: bytearray(open(x).read(), "ascii") , }
 	
 
 
@@ -55,8 +55,7 @@ class File:
 				ext, self.loaders.keys()))
 
 		loader = self.loaders[ext]
-		with open(self.source) as f:
-			d = loader(f)
+		with loader(self.source) as d:
 			loaded = np.asarray(d)
 
 		return loaded
