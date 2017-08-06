@@ -5,12 +5,32 @@ import fileFuncs.ff as ff
 from PIL import Image
 import argparse
 import os
+from contextlib import contextmanager
 
-loaders = {".npy" : np.load, 
+########################################################################
+# EXTENDING NEW LOADERS                                                #
+########################################################################
+# 1. Append the new loader to the loaders dictionary
+#
+# -- In order to extend loaders that do no support "with as" 
+# statements, follow the example below:
+#
+# --- contexmanager adds __enter__ and __exit__ around the generator.
+# one only has to yield the data neccessary but more intricate steps
+# can occur in the before and after the yield if necessary ---
+
+@contextmanager
+def np_load(file):
+	yield np.load(file)
+
+@contextmanager
+def json_load(file):
+	yield bytearray(open(file).read(), 'ascii')
+
+loaders = {".npy" : np_load, 
 		".png" : Image.open, 
 		".jpeg" : Image.open, 
-		".json" : lambda x: bytearray(open(x).read(), "ascii") , }
-	
+		".json" : json_load , }
 
 
 class Folder:
@@ -55,6 +75,7 @@ class File:
 				ext, self.loaders.keys()))
 
 		loader = self.loaders[ext]
+		# print(loader.__exit__)
 		with loader(self.source) as d:
 			loaded = np.asarray(d)
 
