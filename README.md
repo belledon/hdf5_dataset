@@ -1,6 +1,13 @@
 # hdf5_dataset
 Converts path structure to hdf5 recursively
 
+
+## Supported file types:
+
+- json
+- png, jpeg
+- npy
+
 ## Requirements:
 - python 3
 - h5py
