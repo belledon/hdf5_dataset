@@ -35,9 +35,11 @@ loaders = {".npy" : np_load,
 
 class Folder:
 	
-	def __init__(self, source, f):
-
-		group = f.create_group(ff.fileBase(source))
+	def __init__(self, source, f, root = False):
+		if root:
+			group = f
+		else:
+			group = f.create_group(ff.fileBase(source))
 
 		for file in ff.find(source, "*.*"):
 			try:
@@ -105,7 +107,7 @@ def main():
 	print("Save destination: {}".format(out))
 	print("Beginning HDF5 conversion")
 	with h5py.File(out, "w") as f:
-		Folder(args.root, f)
+		Folder(args.root, f, root = True)
 
 	print("HDF5 conversion complete")
 
