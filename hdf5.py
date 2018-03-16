@@ -1,10 +1,11 @@
-import h5py 
+import os
+import h5py
 import json
+import argparse
 import numpy as np
 import fileFuncs.ff as ff
+
 from PIL import Image
-import argparse
-import os
 from contextlib import contextmanager
 
 ########################################################################
@@ -12,12 +13,14 @@ from contextlib import contextmanager
 ########################################################################
 # 1. Append the new loader to the loaders dictionary
 #
-# -- In order to extend loaders that do no support "with as" 
+# -- In order to extend loaders that do no support "with as"
 # statements, follow the example below:
 #
 # --- contexmanager adds __enter__ and __exit__ around the generator.
 # one only has to yield the data neccessary but more intricate steps
 # can occur in the before and after the yield if necessary ---
+
+
 
 @contextmanager
 def np_load(file):
@@ -27,14 +30,31 @@ def np_load(file):
 def json_load(file):
 	yield bytearray(open(file).read(), 'ascii')
 
-loaders = {".npy" : np_load, 
-		".png" : Image.open, 
-		".jpeg" : Image.open, 
-		".json" : json_load , }
+
+
+loaders = {".npy" : np_load,
+		".png" : Image.open,
+		".jpeg" : Image.open,
+		".json" : json_load ,
+		".txt" : json_load,
+		}
+
+try:
+	@contextmanager
+	def wav_load(file):
+		yield open(file, 'rb').read()
+
+
+	loaders.update({'.wav': wav_load, ".ges" : wav_load})
+except ImportError:
+    print("Could not find `soudfile`, will not be able to load '.wav'")
+
+
+
 
 
 class Folder:
-	
+
 	def __init__(self, source, f, root = False):
 		if root:
 			group = f
@@ -86,7 +106,7 @@ class File:
 def main():
 	parser = argparse.ArgumentParser(description = "Converts directorty tree to hdf5")
 
-	parser.add_argument("root", type =str, 
+	parser.add_argument("root", type =str,
 		help = "Root path")
 
 	parser.add_argument("--out", "-o", type = str, default = os.getcwd(),
