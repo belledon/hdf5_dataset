@@ -23,34 +23,8 @@ from contextlib import contextmanager
 
 
 @contextmanager
-def np_load(file):
-	yield np.load(file)
-
-@contextmanager
-def json_load(file):
-	yield bytearray(open(file).read(), 'ascii')
-
-
-
-loaders = {".npy" : np_load,
-		".png" : Image.open,
-		".jpeg" : Image.open,
-		".json" : json_load ,
-		".txt" : json_load,
-		}
-
-try:
-	@contextmanager
-	def wav_load(file):
-		yield open(file, 'rb').read()
-
-
-	loaders.update({'.wav': wav_load, ".ges" : wav_load})
-except ImportError:
-    print("Could not find `soudfile`, will not be able to load '.wav'")
-
-
-
+def byte_loader(file):
+	yield open(file, 'rb').read()
 
 
 class Folder:
@@ -63,7 +37,7 @@ class Folder:
 
 		for file in ff.find(source, "*.*"):
 			try:
-				f_obj = File(file, ff.fileExt(file))
+				f_obj = File(file)
 				f_obj(group)
 
 			except ValueError as e:
@@ -78,29 +52,19 @@ class Folder:
 
 class File:
 
-	def __init__(self, source, ext, loaders = loaders):
-
-		self.loaders = loaders
+	def __init__(self, source):
 		self.source = source
-		self.loaded = self.load_data(ext)
 
 	def __call__(self, group):
 
 		source_id = ff.fileName(self.source)
-		group.create_dataset(source_id, data=self.loaded)
+		data = self.load_data()
+		group.create_dataset(source_id, data=data)
 
 
-
-	def load_data(self, ext):
-		if ext not in self.loaders.keys():
-			raise ValueError("Ext {} not supported ({})".format(
-				ext, self.loaders.keys()))
-
-		loader = self.loaders[ext]
-		# print(loader.__exit__)
-		with loader(self.source) as d:
+	def load_data(self):
+		with byte_loader(self.source) as d:
 			loaded = np.asarray(d)
-
 		return loaded
 
 def main():
@@ -115,7 +79,7 @@ def main():
 
 	args = parser.parse_args()
 
-	print("Supported files are {}".format(loaders.keys()))
+	# print("Supported files are {}".format(loaders.keys()))
 
 	if not ff.isDir(args.root):
 		raise ValueError("{} is not a valid path".format(args.root))
