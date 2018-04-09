@@ -63,8 +63,10 @@ class File:
 
 
 	def load_data(self):
-		with byte_loader(self.source) as d:
-			loaded = np.asarray(d)
+		with open(self.source, 'rb') as d:
+			raw = d.read()
+			loaded = np.void(raw)
+
 		return loaded
 
 def main():
