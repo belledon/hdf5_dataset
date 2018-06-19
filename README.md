@@ -11,11 +11,22 @@ Version 0.1.0
 - numpy
 
 ## Usage
+=======
+
+## Supported file types:
+
+Relies on Numpy's `np.void` array to preserve binary data.
+
+## Requirements:
+- python 3
+- h5py
+
+## Usage:
 
 ```
 usage: hdf5.py [-h] [--out OUT] root
 
-Converts directorty tree to hdf5
+Converts directory tree to hdf5
 
 positional arguments:
   root               Root path
