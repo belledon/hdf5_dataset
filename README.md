@@ -3,15 +3,6 @@ Converts path structure to hdf5 recursively
 
 Version 0.1.0
 
-## Dependencies
-
-### python 3+
-
-- h5py
-- numpy
-
-## Usage
-=======
 
 ## Supported file types:
 
@@ -20,6 +11,7 @@ Relies on Numpy's `np.void` array to preserve binary data.
 ## Requirements:
 - python 3
 - h5py
+- numpy
 
 ## Usage:
 
