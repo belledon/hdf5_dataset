@@ -1,7 +1,7 @@
 # hdf5_dataset
 Converts path structure to hdf5 recursively
 
-Version 0.1.0
+Version 0.2.0
 
 
 ## Supported file types:
