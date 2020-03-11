@@ -6,6 +6,10 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="h5data",
     version="0.0.1",
+    install_requires =[
+        "numpy",
+        "h5py"
+    ],
     author="Mario Belledonne",
     author_email="mbelledonne@gmail.com",
     description="Tools to create and access hdf5 datasets for ML.",
