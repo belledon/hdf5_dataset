@@ -101,7 +101,7 @@ class HDF5Dataset(ABC):
                 path = trial_parts[key]
                 p_func = trial_funcs[key]
                 try:
-                    raw = f[path].value
+                    raw = f[path][()]
                 except:
                     msg = '{} not found in trial {}'.format(path, i)
                     raise KeyError(msg)
